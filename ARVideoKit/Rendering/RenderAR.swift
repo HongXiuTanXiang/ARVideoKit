@@ -66,8 +66,14 @@ struct RenderAR {
                 let bufferHeight = CVPixelBufferGetHeight(raw)
                 let viewSize = CGSize(width: 720, height: 1280)
                 let targetSize = AVMakeRect(aspectRatio: viewSize, insideRect: CGRect(x: 0, y: 0, width: bufferWidth, height: bufferHeight)).size
+                
                 width = Int(targetSize.width)
                 height = Int(targetSize.height)
+                // 为防止视频合成出现绿边
+                let divisorW = width / 16
+                let divisorH = height / 16
+                width = 16 * divisorW
+                height = 16 * divisorH
 
             default:
                 if UIScreen.main.isiPhone10 {
