@@ -14,6 +14,7 @@ import Foundation
     /// Recommended for iPhone X
     case aspectFill
     case viewAspectRatio
+    case aspectRatio16To9
 }
 
 /// Allows specifying the video rendering frame per second `FPS` rate.
