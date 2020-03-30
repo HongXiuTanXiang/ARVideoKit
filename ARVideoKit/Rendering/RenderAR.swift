@@ -14,13 +14,6 @@ struct RenderAR {
     private var view: Any?
     private var renderEngine: SCNRenderer!
     var ARcontentMode: ARFrameMode!
-    let clipW = Int(UIScreen.main.nativeBounds.width * 1.5)
-    let clipH = Int(UIScreen.main.nativeBounds.width * 1.5 * 1.778)
-    let clipY = Int(UIScreen.main.nativeBounds.height * 1.5 - UIScreen.main.nativeBounds.width * 1.5 * 1.778)/2
-    let clipX = 0
-    
-    let clipSizp = CGSize.init(width: Int(UIScreen.main.nativeBounds.width * 1.5), height: Int(UIScreen.main.nativeBounds.width * 1.5 * 1.778))
-    let clipPoint = CGPoint.init(x: 0, y: Int(UIScreen.main.nativeBounds.height * 1.5 - UIScreen.main.nativeBounds.width * 1.5 * 1.778)/2)
     
     init(_ ARview: Any?, renderer: SCNRenderer, contentMode: ARFrameMode) {
         view = ARview
@@ -69,8 +62,8 @@ struct RenderAR {
                 width = Int(targetSize.width)
                 height = Int(targetSize.height)
             case .aspectRatio16To9:
-                width = Int(UIScreen.main.nativeBounds.width * 2.0)
-                height = Int(UIScreen.main.nativeBounds.height * 2.0)
+                width = Int(UIScreen.main.nativeBounds.width * 1.5)
+                height = Int(UIScreen.main.nativeBounds.height * 1.5)
             default:
                 if UIScreen.main.isiPhone10 {
                     width = Int(UIScreen.main.nativeBounds.width)
@@ -126,7 +119,10 @@ struct RenderAR {
             guard let buffer = renderedFrame!.buffer else { return nil }
             return buffer;
         } else if view is SCNView {
-            let size = UIScreen.main.bounds.size
+            var size = UIScreen.main.bounds.size
+            if let bufferS = bufferSize {
+                size = bufferS
+            }
             var renderedFrame: UIImage?
             pixelsQueue.sync {
                 renderedFrame = renderEngine.snapshot(atTime: self.time, with: size, antialiasingMode: .none)
