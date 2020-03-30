@@ -766,10 +766,19 @@ extension RecordAR {
             logAR.message("ERROR:- An error occurred while rendering the camera's main buffers.")
             return
         }
-        guard let size = renderer.bufferSize else {
+        
+        guard var size = renderer.bufferSize else {
             logAR.message("ERROR:- An error occurred while rendering the camera buffer.")
             return
         }
+
+        switch contentMode {
+        case .aspectRatio16To9:
+            size = CGSize.init(width: size.width, height: size.width * 1.778)
+        default:
+            break
+        }
+        
         renderer.ARcontentMode = contentMode
 
         self.writerQueue.sync {

@@ -14,6 +14,13 @@ struct RenderAR {
     private var view: Any?
     private var renderEngine: SCNRenderer!
     var ARcontentMode: ARFrameMode!
+    let clipW = Int(UIScreen.main.nativeBounds.width * 1.5)
+    let clipH = Int(UIScreen.main.nativeBounds.width * 1.5 * 1.778)
+    let clipY = Int(UIScreen.main.nativeBounds.height * 1.5 - UIScreen.main.nativeBounds.width * 1.5 * 1.778)/2
+    let clipX = 0
+    
+    let clipSizp = CGSize.init(width: Int(UIScreen.main.nativeBounds.width * 1.5), height: Int(UIScreen.main.nativeBounds.width * 1.5 * 1.778))
+    let clipPoint = CGPoint.init(x: 0, y: Int(UIScreen.main.nativeBounds.height * 1.5 - UIScreen.main.nativeBounds.width * 1.5 * 1.778)/2)
     
     init(_ ARview: Any?, renderer: SCNRenderer, contentMode: ARFrameMode) {
         view = ARview
@@ -62,19 +69,8 @@ struct RenderAR {
                 width = Int(targetSize.width)
                 height = Int(targetSize.height)
             case .aspectRatio16To9:
-                let bufferWidth = CVPixelBufferGetWidth(raw)
-                let bufferHeight = CVPixelBufferGetHeight(raw)
-                let viewSize = CGSize(width: 720, height: 1280)
-                let targetSize = AVMakeRect(aspectRatio: viewSize, insideRect: CGRect(x: 0, y: 0, width: bufferWidth, height: bufferHeight)).size
-                
-                width = Int(targetSize.width)
-                height = Int(targetSize.height)
-                // 为防止视频合成出现绿边
-                let divisorW = width / 16
-                let divisorH = height / 16
-                width = 16 * divisorW
-                height = 16 * divisorH
-
+                width = Int(UIScreen.main.nativeBounds.width * 2.0)
+                height = Int(UIScreen.main.nativeBounds.height * 2.0)
             default:
                 if UIScreen.main.isiPhone10 {
                     width = Int(UIScreen.main.nativeBounds.width)
@@ -113,6 +109,8 @@ struct RenderAR {
             } else {
                 renderedFrame = renderEngine.snapshot(atTime: time, with: size, antialiasingMode: .none)
             }
+            
+            renderedFrame = self.cropImageWithcontentMode(contentMode: ARcontentMode, renderedFrame: renderedFrame)
             guard let buffer = renderedFrame!.buffer else { return nil }
             return buffer
         } else if view is ARSKView {
@@ -124,6 +122,7 @@ struct RenderAR {
             if renderedFrame == nil {
                 renderedFrame = renderEngine.snapshot(atTime: time, with: size, antialiasingMode: .none).rotate(by: 180)
             }
+            renderedFrame = self.cropImageWithcontentMode(contentMode: ARcontentMode, renderedFrame: renderedFrame)
             guard let buffer = renderedFrame!.buffer else { return nil }
             return buffer;
         } else if view is SCNView {
@@ -136,9 +135,23 @@ struct RenderAR {
             } else {
                 renderedFrame = renderEngine.snapshot(atTime: time, with: size, antialiasingMode: .none)
             }
+            renderedFrame = self.cropImageWithcontentMode(contentMode: ARcontentMode, renderedFrame: renderedFrame)
             guard let buffer = renderedFrame!.buffer else { return nil }
             return buffer
         }
         return nil
+    }
+    
+    func cropImageWithcontentMode(contentMode: ARFrameMode, renderedFrame: UIImage?) -> UIImage? {
+        switch contentMode {
+        case .aspectRatio16To9:
+            guard let image =  renderedFrame else {
+                return nil
+            }
+            let img = image.cropping(to: CGRect.init(x: 0, y: (image.size.height - image.size.width * 1.778) / 2, width: image.size.width, height: image.size.width * 1.778))
+            return img
+        default:
+            return renderedFrame
+        }
     }
 }

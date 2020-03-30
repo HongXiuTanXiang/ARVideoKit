@@ -59,6 +59,8 @@ class SCNViewController: UIViewController, ARSCNViewDelegate, RenderARDelegate, 
         // Configure ARKit content mode. Default is .auto
         recorder?.contentMode = .aspectRatio16To9
         
+        recorder?.fps = .auto
+        
         //record or photo add environment light rendering, Default is false
         recorder?.enableAdjustEnvironmentLighting = true
         
