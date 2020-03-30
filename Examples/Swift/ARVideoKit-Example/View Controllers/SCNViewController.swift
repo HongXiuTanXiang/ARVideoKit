@@ -273,7 +273,7 @@ extension SCNViewController {
     
     func recorder(didEndRecording path: URL, with noError: Bool) {
         if noError {
-            // Do something with the video path.
+            
         }
     }
     

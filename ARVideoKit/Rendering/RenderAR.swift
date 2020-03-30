@@ -14,6 +14,7 @@ struct RenderAR {
     private var view: Any?
     private var renderEngine: SCNRenderer!
     var ARcontentMode: ARFrameMode!
+    var renderScale: CGFloat = 1.5
     
     init(_ ARview: Any?, renderer: SCNRenderer, contentMode: ARFrameMode) {
         view = ARview
@@ -62,8 +63,8 @@ struct RenderAR {
                 width = Int(targetSize.width)
                 height = Int(targetSize.height)
             case .aspectRatio16To9:
-                width = Int(UIScreen.main.nativeBounds.width * 1.5)
-                height = Int(UIScreen.main.nativeBounds.height * 1.5)
+                width = Int(UIScreen.main.nativeBounds.width * renderScale)
+                height = Int(UIScreen.main.nativeBounds.height * renderScale)
             default:
                 if UIScreen.main.isiPhone10 {
                     width = Int(UIScreen.main.nativeBounds.width)
@@ -120,9 +121,10 @@ struct RenderAR {
             return buffer;
         } else if view is SCNView {
             var size = UIScreen.main.bounds.size
-            if let bufferS = bufferSize {
-                size = bufferS
-            }
+            let width = Int(UIScreen.main.nativeBounds.width * renderScale)
+            let height = Int(UIScreen.main.nativeBounds.height * renderScale)
+            size = CGSize.init(width: width, height: height)
+
             var renderedFrame: UIImage?
             pixelsQueue.sync {
                 renderedFrame = renderEngine.snapshot(atTime: self.time, with: size, antialiasingMode: .none)

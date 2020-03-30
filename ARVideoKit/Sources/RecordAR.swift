@@ -125,6 +125,8 @@ import PhotosUI
         }
     }
     
+    @objc public var renderScale: CGFloat = 1.5
+    
     //MARK: - Public initialization methods
     /**
      Initialize 🌞🍳 `RecordAR` with an `ARSCNView` 🚀.
@@ -283,6 +285,7 @@ import PhotosUI
         onlyRenderWhileRec = onlyRenderWhileRecording
         
         renderer = RenderAR(view, renderer: renderEngine, contentMode: contentMode)
+        renderer.renderScale = self.renderScale
 
         NotificationCenter.default.addObserver(self, selector: #selector(appWillEnterBackground), name: UIApplication.willResignActiveNotification, object: nil)
     }
