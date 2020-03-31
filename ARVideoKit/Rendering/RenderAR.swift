@@ -146,7 +146,7 @@ struct RenderAR {
             guard let image =  renderedFrame else {
                 return nil
             }
-            let img = image.cropping(to: CGRect.init(x: 0, y: (image.size.height - image.size.width * 1.778) / 2, width: image.size.width, height: image.size.width * 1.778))
+            let img = image.cropping(to: CGRect.init(x: 0, y: 0, width: image.size.width, height: image.size.width * 1.778))
             return img
         default:
             return renderedFrame

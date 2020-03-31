@@ -68,7 +68,7 @@ class SenceViewController: UIViewController,SCNSceneRendererDelegate {
         self.title = "SenceViewController"
         
         makeScence()
-        makeNode()
+
 
         
         recorder = RecordAR.init(SceneKit: sceneView)
@@ -120,21 +120,16 @@ class SenceViewController: UIViewController,SCNSceneRendererDelegate {
         self.view.addSubview(sceneView)
         let scene = SCNScene(named: "art.scnassets/ship.scn")!
         self.sceneView.scene = scene
-        self.node = scene.rootNode
-        self.node?.eulerAngles = SCNVector3Make(Float(-CGFloat.pi*2), 0, 0)
-        return
-    }
-    
-    
-    @objc dynamic func makeNode() -> Void {
-    
-        let camersNode = SCNNode.init()
-        camersNode.camera = SCNCamera.init()
-        self.sceneView.scene?.rootNode.addChildNode(camersNode)
-        self.sceneView.allowsCameraControl = true
-        // 相机z轴的位置会影响AR物体的大小
-        camersNode.position = SCNVector3Make(0, 1, 3)
         
+        let cameraNode = SCNNode()
+        cameraNode.camera = SCNCamera()
+        cameraNode.position = SCNVector3(0, 0, 0)
+        cameraNode.eulerAngles = SCNVector3(0, 0, 0)
+        self.sceneView.scene?.rootNode.addChildNode(cameraNode)
+        self.sceneView.allowsCameraControl = true
+        self.node = scene.rootNode
+        
+
         return
     }
 
