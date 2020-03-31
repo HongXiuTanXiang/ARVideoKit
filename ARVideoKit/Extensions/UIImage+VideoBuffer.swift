@@ -118,54 +118,73 @@ extension UIImage {
         let newImage = UIImage(cgImage: newImageRef, scale: scale, orientation: .up)
         return newImage
     }
-
-}
-
-
-extension UIImage {
-    //将图片缩放成指定尺寸（多余部分自动删除）
-    func scaled(to newSize: CGSize) -> UIImage {
-        //计算比例
-        let aspectWidth  = newSize.width/size.width
-        let aspectHeight = newSize.height/size.height
-        let aspectRatio = max(aspectWidth, aspectHeight)
-        
-        //图片绘制区域
-        var scaledImageRect = CGRect.zero
-        scaledImageRect.size.width  = size.width * aspectRatio
-        scaledImageRect.size.height = size.height * aspectRatio
-        scaledImageRect.origin.x    = 0
-        scaledImageRect.origin.y    = 0
-        
-        //绘制并获取最终图片
-        UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)//图片不失真
-        draw(in: scaledImageRect)
-        let scaledImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        return scaledImage!
-    }
     
-    //将图片缩放成指定尺寸（多余部分自动删除）
-    func scaled(to newSize: CGSize, origin: CGPoint) -> UIImage {
-        //计算比例
-        let aspectWidth  = newSize.width/size.width
-        let aspectHeight = newSize.height/size.height
-        let aspectRatio = max(aspectWidth, aspectHeight)
+    func cropImage(to rect: CGRect) -> UIImage? {
+        let originalsize = self.size
+        //原图长宽均小于标准长宽的，不作处理返回原图
+        let clipSize = rect.size
         
-        //图片绘制区域
-        var scaledImageRect = CGRect.zero
-        scaledImageRect.size.width  = size.width * aspectRatio
-        scaledImageRect.size.height = size.height * aspectRatio
-        scaledImageRect.origin.x    = origin.x
-        scaledImageRect.origin.y    = origin.y
-        
-        //绘制并获取最终图片
-        UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)//图片不失真
-        draw(in: scaledImageRect)
-        let scaledImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        return scaledImage!
+        if originalsize.width < clipSize.width && originalsize.height < clipSize.height  {
+            return self
+        } else if originalsize.width > clipSize.width && originalsize.height > clipSize.height {
+            //原图长宽均大于标准长宽的，按比例缩小至最大适应值
+            var rate:CGFloat = 1.0
+            let widthRate = originalsize.width / clipSize.width
+            let heightRate = originalsize.height / clipSize.height
+            if widthRate > heightRate {
+                rate = heightRate
+            } else {
+                rate = widthRate
+            }
+            var imageRef: CGImage? = nil
+            
+            if (heightRate>widthRate) {
+                imageRef = self.cgImage?.cropping(to: CGRect.init(x: 0, y: originalsize.height/2-clipSize.height*rate/2, width: originalsize.width, height: clipSize.height*rate))
+            } else {
+                imageRef = self.cgImage?.cropping(to: CGRect.init(x: originalsize.width/2-clipSize.width*rate/2, y: 0, width: clipSize.width*rate, height: originalsize.height))
+            }
+            
+            guard let cgimg = imageRef else {
+                return self
+            }
+            
+            UIGraphicsBeginImageContext(clipSize)
+            let context = UIGraphicsGetCurrentContext()
+            context?.translateBy(x: 0.0, y: clipSize.height)
+            context?.scaleBy(x: 1.0, y: -1.0)
+            context?.draw(cgimg, in: CGRect.init(x: 0, y: 0, width: clipSize.width, height: clipSize.height))
+            let standardImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            return standardImage
+        } else if originalsize.height>clipSize.height || originalsize.width>clipSize.width {
+            //原图长宽有一项大于标准长宽的，对大于标准的那一项进行裁剪，另一项保持不变
+            var imageRef: CGImage? = nil
+            
+            if(originalsize.height > clipSize.height)
+            {
+                imageRef = self.cgImage?.cropping(to: CGRect.init(x: 0, y: 0, width: originalsize.width, height: clipSize.height))
+            }
+            else if (originalsize.width > clipSize.width)
+            {
+                imageRef = self.cgImage?.cropping(to: CGRect.init(x: originalsize.width/2-clipSize.width/2, y: 0, width: clipSize.width, height: originalsize.height))
+            }
+            
+            guard let cgimg = imageRef else {
+                return self
+            }
+            UIGraphicsBeginImageContext(clipSize)
+            let context = UIGraphicsGetCurrentContext()
+            context?.translateBy(x: 0.0, y: clipSize.height)
+            context?.scaleBy(x: 1.0, y: -1.0)
+            context?.draw(cgimg, in: CGRect.init(x: 0, y: 0, width: clipSize.width, height: clipSize.height))
+            let standardImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            return standardImage
+        } else {
+            //原图为标准长宽的，不做处理
+            return self
+        }
     }
+
+
 }

@@ -55,7 +55,7 @@ class SCNViewController: UIViewController, ARSCNViewDelegate, RenderARDelegate, 
         recorder?.renderAR = self
         
         // Configure the renderer to perform additional image & video processing 👁
-        recorder?.onlyRenderWhileRecording = false
+        recorder?.onlyRenderWhileRecording = true
         
         // Configure ARKit content mode. Default is .auto
         recorder?.contentMode = .aspectRatio16To9

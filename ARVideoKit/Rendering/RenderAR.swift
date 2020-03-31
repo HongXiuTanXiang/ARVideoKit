@@ -141,12 +141,15 @@ struct RenderAR {
     }
     
     func cropImageWithcontentMode(contentMode: ARFrameMode, renderedFrame: UIImage?) -> UIImage? {
+        if !UIScreen.main.isiPhone10 { //非isiPhone10 不用裁剪
+            return renderedFrame
+        }
         switch contentMode {
         case .aspectRatio16To9:
             guard let image =  renderedFrame else {
                 return nil
             }
-            let img = image.cropping(to: CGRect.init(x: 0, y: 0, width: image.size.width, height: image.size.width * 1.778))
+            let img = image.cropImage(to: CGRect.init(x: 0, y: 0, width: image.size.width, height: image.size.width * 1.778))
             return img
         default:
             return renderedFrame

@@ -77,10 +77,10 @@ class SenceViewController: UIViewController,SCNSceneRendererDelegate {
         // Set the recorder's delegate
         recorder?.delegate = self
 
-        recorder?.renderScale = 2.0
+        recorder?.renderScale = 1.5
         
         // Configure the renderer to perform additional image & video processing 👁
-        recorder?.onlyRenderWhileRecording = false
+        recorder?.onlyRenderWhileRecording = true
         
         // Configure ARKit content mode. Default is .auto
         recorder?.contentMode = .aspectRatio16To9

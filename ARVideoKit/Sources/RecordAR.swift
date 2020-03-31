@@ -776,7 +776,9 @@ extension RecordAR {
 
         switch contentMode {
         case .aspectRatio16To9:
-            size = CGSize.init(width: size.width, height: size.width * 1.778)
+            if UIScreen.main.isiPhone10 {
+                size = CGSize.init(width: size.width, height: size.width * 1.778)
+            }
         default:
             break
         }
