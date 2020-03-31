@@ -285,7 +285,6 @@ import PhotosUI
         onlyRenderWhileRec = onlyRenderWhileRecording
         
         renderer = RenderAR(view, renderer: renderEngine, contentMode: contentMode)
-        renderer.renderScale = self.renderScale
 
         NotificationCenter.default.addObserver(self, selector: #selector(appWillEnterBackground), name: UIApplication.willResignActiveNotification, object: nil)
     }
@@ -782,6 +781,7 @@ extension RecordAR {
             break
         }
         
+        renderer.renderScale = self.renderScale
         renderer.ARcontentMode = contentMode
 
         self.writerQueue.sync {

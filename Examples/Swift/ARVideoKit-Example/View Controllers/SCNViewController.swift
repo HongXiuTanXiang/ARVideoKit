@@ -44,6 +44,7 @@ class SCNViewController: UIViewController, ARSCNViewDelegate, RenderARDelegate, 
 
 
         recorder = RecordAR(ARSceneKit: sceneView)
+        recorder?.renderScale = 1.5
         
         /*----👇---- ARVideoKit Configuration ----👇----*/
         

@@ -39,6 +39,15 @@ class SenceViewController: UIViewController,SCNSceneRendererDelegate {
         return btn
     }()
     
+    lazy var takePhotoBtn: UIButton = {
+        let btn = UIButton()
+        btn.setTitle("拍照", for: .normal)
+        btn.addTarget(self, action: #selector(takePhotoBtnClick), for: UIControl.Event.touchUpInside)
+        btn.setTitleColor(UIColor.black, for: UIControl.State.normal)
+        btn.backgroundColor = UIColor.white
+        return btn
+    }()
+    
     lazy var goback: UIButton = {
         let btn = UIButton()
         btn.setTitle("goback", for: .normal)
@@ -68,7 +77,7 @@ class SenceViewController: UIViewController,SCNSceneRendererDelegate {
         // Set the recorder's delegate
         recorder?.delegate = self
 
-        recorder?.renderScale = 1.5
+        recorder?.renderScale = 2.0
         
         // Configure the renderer to perform additional image & video processing 👁
         recorder?.onlyRenderWhileRecording = false
@@ -95,6 +104,9 @@ class SenceViewController: UIViewController,SCNSceneRendererDelegate {
         self.pauseBtn.frame = CGRect.init(x: 20, y: 140, width: 200, height: 50)
         self.view.addSubview(self.recordBtn)
         self.view.addSubview(self.pauseBtn)
+        
+        self.takePhotoBtn.frame = CGRect.init(x: 20, y: 200, width: 200, height: 50)
+        self.view.addSubview(self.takePhotoBtn)
         
     }
     
@@ -140,6 +152,15 @@ class SenceViewController: UIViewController,SCNSceneRendererDelegate {
         recorder?.stop()
         print("录制结束")
     }
+    
+    @objc dynamic func takePhotoBtnClick() {
+        let image = recorder?.photo()
+        recorder?.export(image: nil, UIImage: image, { (success, status) in
+            print("保存照片")
+        })
+        
+    }
+
 
     
 
