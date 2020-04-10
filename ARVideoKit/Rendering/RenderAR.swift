@@ -15,6 +15,7 @@ struct RenderAR {
     private var renderEngine: SCNRenderer!
     var ARcontentMode: ARFrameMode!
     var renderScale: CGFloat = 1.5
+    var waterImage: UIImage?
     
     init(_ ARview: Any?, renderer: SCNRenderer, contentMode: ARFrameMode) {
         view = ARview
@@ -141,15 +142,22 @@ struct RenderAR {
     }
     
     func cropImageWithcontentMode(contentMode: ARFrameMode, renderedFrame: UIImage?) -> UIImage? {
-        if !UIScreen.main.isiPhone10 { //非isiPhone10 不用裁剪
-            return renderedFrame
-        }
+        
         switch contentMode {
         case .aspectRatio16To9:
             guard let image =  renderedFrame else {
                 return nil
             }
-            let img = image.cropImage(to: CGRect.init(x: 0, y: 0, width: image.size.width, height: image.size.width * 1.778))
+            var img: UIImage?
+            if !UIScreen.main.isiPhone10 && self.waterImage == nil { //非isiPhone10 不用裁剪
+                return renderedFrame
+            } else if !UIScreen.main.isiPhone10 && self.waterImage != nil {
+                img = image.cropImage(to: CGRect.init(x: 0, y: 0, width: image.size.width, height: image.size.width * 1.778), waterImg: self.waterImage)
+            } else if UIScreen.main.isiPhone10 && self.waterImage == nil {
+                img = image.cropImage(to: CGRect.init(x: 0, y: 0, width: image.size.width, height: image.size.width * 1.778))
+            } else if UIScreen.main.isiPhone10 && self.waterImage != nil {
+                img = image.cropImage(to: CGRect.init(x: 0, y: 0, width: image.size.width, height: image.size.width * 1.778), waterImg: self.waterImage)
+            }
             return img
         default:
             return renderedFrame

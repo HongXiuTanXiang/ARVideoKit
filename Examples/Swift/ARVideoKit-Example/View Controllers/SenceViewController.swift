@@ -84,6 +84,7 @@ class SenceViewController: UIViewController,SCNSceneRendererDelegate {
         
         // Configure ARKit content mode. Default is .auto
         recorder?.contentMode = .aspectRatio16To9
+        recorder?.waterImage = UIImage(named: "icon_ar_waterflag_01")
         
         recorder?.fps = .auto
         

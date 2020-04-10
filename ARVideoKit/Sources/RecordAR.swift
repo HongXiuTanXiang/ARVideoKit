@@ -127,6 +127,8 @@ import PhotosUI
     
     @objc public var renderScale: CGFloat = 1.5
     
+    @objc public var waterImage: UIImage?
+    
     //MARK: - Public initialization methods
     /**
      Initialize 🌞🍳 `RecordAR` with an `ARSCNView` 🚀.
@@ -785,6 +787,7 @@ extension RecordAR {
         
         renderer.renderScale = self.renderScale
         renderer.ARcontentMode = contentMode
+        renderer.waterImage = self.waterImage
 
         self.writerQueue.sync {
             

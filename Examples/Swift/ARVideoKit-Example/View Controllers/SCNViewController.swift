@@ -45,6 +45,7 @@ class SCNViewController: UIViewController, ARSCNViewDelegate, RenderARDelegate, 
 
         recorder = RecordAR(ARSceneKit: sceneView)
         recorder?.renderScale = 1.5
+        recorder?.waterImage = UIImage(named: "icon_ar_waterflag_01")
         
         /*----👇---- ARVideoKit Configuration ----👇----*/
         
