@@ -14,7 +14,7 @@ extension UIScreen {
     /**
      `isiPhone10` is a boolean that returns if the device is iPhone X or not.
      */
-    var isiPhone10: Bool {
+    var isNotch: Bool {
         var iPhoneXSer = false
         if UIDevice.current.userInterfaceIdiom != UIUserInterfaceIdiom.phone {
             return iPhoneXSer

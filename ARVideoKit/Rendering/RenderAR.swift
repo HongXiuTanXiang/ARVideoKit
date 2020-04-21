@@ -11,11 +11,14 @@ import ARKit
 
 @available(iOS 11.0, *)
 struct RenderAR {
+    
+    public var renderScale: CGFloat = 1.5
+    
+    public var waterImage: UIImage?
+    
     private var view: Any?
     private var renderEngine: SCNRenderer!
     var ARcontentMode: ARFrameMode!
-    var renderScale: CGFloat = 1.5
-    var waterImage: UIImage?
     
     init(_ ARview: Any?, renderer: SCNRenderer, contentMode: ARFrameMode) {
         view = ARview
@@ -46,30 +49,26 @@ struct RenderAR {
         if let contentMode = ARcontentMode {
             switch contentMode {
             case .auto:
-                if UIScreen.main.isiPhone10 {
-                    width = Int(UIScreen.main.nativeBounds.width)
-                    height = Int(UIScreen.main.nativeBounds.height)
+                if UIScreen.main.isNotch {
+                    width = Int(UIScreen.main.nativeBounds.width * renderScale)
+                    height = Int(UIScreen.main.nativeBounds.height * renderScale)
                 }
             case .aspectFit:
                 width = CVPixelBufferGetWidth(raw)
                 height = CVPixelBufferGetHeight(raw)
             case .aspectFill:
-                width = Int(UIScreen.main.nativeBounds.width)
-                height = Int(UIScreen.main.nativeBounds.height)
+                width = Int(UIScreen.main.nativeBounds.width * renderScale)
+                height = Int(UIScreen.main.nativeBounds.height * renderScale)
             case .viewAspectRatio where view is UIView:
-                let bufferWidth = CVPixelBufferGetWidth(raw)
-                let bufferHeight = CVPixelBufferGetHeight(raw)
-                let viewSize = (view as! UIView).bounds.size
-                let targetSize = AVMakeRect(aspectRatio: viewSize, insideRect: CGRect(x: 0, y: 0, width: bufferWidth, height: bufferHeight)).size
-                width = Int(targetSize.width)
-                height = Int(targetSize.height)
+                width = Int(UIScreen.main.nativeBounds.width * renderScale)
+                height = Int(UIScreen.main.nativeBounds.height * renderScale)
             case .aspectRatio16To9:
                 width = Int(UIScreen.main.nativeBounds.width * renderScale)
                 height = Int(UIScreen.main.nativeBounds.height * renderScale)
             default:
-                if UIScreen.main.isiPhone10 {
-                    width = Int(UIScreen.main.nativeBounds.width)
-                    height = Int(UIScreen.main.nativeBounds.height)
+                if UIScreen.main.isNotch {
+                    width = Int(UIScreen.main.nativeBounds.width * renderScale)
+                    height = Int(UIScreen.main.nativeBounds.height * renderScale)
                 }
             }
         }
@@ -92,6 +91,13 @@ struct RenderAR {
         }
     }
     
+    var clipSize: CGSize {
+        if self.ARcontentMode == .aspectRatio16To9 {
+            return CGSize.init(width: UIScreen.main.nativeBounds.width * renderScale, height: UIScreen.main.nativeBounds.width * renderScale * 1.778)
+        }
+        return CGSize.init(width: UIScreen.main.nativeBounds.width * renderScale, height: UIScreen.main.nativeBounds.height * renderScale)
+    }
+    
     var buffer: CVPixelBuffer? {
         if view is ARSCNView {
             guard let size = bufferSize else { return nil }
@@ -104,9 +110,12 @@ struct RenderAR {
             } else {
                 renderedFrame = renderEngine.snapshot(atTime: time, with: size, antialiasingMode: .none)
             }
-            
-            renderedFrame = self.cropImageWithcontentMode(contentMode: ARcontentMode, renderedFrame: renderedFrame)
-            guard let buffer = renderedFrame!.buffer else { return nil }
+            guard let mainImg = renderedFrame else {
+                return nil
+            }
+            guard let buffer = self.bufferWithWaterImage(mainImg: mainImg, water: self.waterImage,clipSize) else {
+                return nil
+            }
             return buffer
         } else if view is ARSKView {
             guard let size = bufferSize else { return nil }
@@ -117,15 +126,15 @@ struct RenderAR {
             if renderedFrame == nil {
                 renderedFrame = renderEngine.snapshot(atTime: time, with: size, antialiasingMode: .none).rotate(by: 180)
             }
-            renderedFrame = self.cropImageWithcontentMode(contentMode: ARcontentMode, renderedFrame: renderedFrame)
-            guard let buffer = renderedFrame!.buffer else { return nil }
+            guard let mainImg = renderedFrame else {
+                return nil
+            }
+            guard let buffer = self.bufferWithWaterImage(mainImg: mainImg, water: self.waterImage,clipSize) else {
+                return nil
+            }
             return buffer;
         } else if view is SCNView {
-            var size = UIScreen.main.bounds.size
-            let width = Int(UIScreen.main.nativeBounds.width * renderScale)
-            let height = Int(UIScreen.main.nativeBounds.height * renderScale)
-            size = CGSize.init(width: width, height: height)
-
+            let size = CGSize.init(width: UIScreen.main.nativeBounds.width * renderScale, height: UIScreen.main.nativeBounds.height * renderScale)
             var renderedFrame: UIImage?
             pixelsQueue.sync {
                 renderedFrame = renderEngine.snapshot(atTime: self.time, with: size, antialiasingMode: .none)
@@ -134,33 +143,65 @@ struct RenderAR {
             } else {
                 renderedFrame = renderEngine.snapshot(atTime: time, with: size, antialiasingMode: .none)
             }
-            renderedFrame = self.cropImageWithcontentMode(contentMode: ARcontentMode, renderedFrame: renderedFrame)
-            guard let buffer = renderedFrame!.buffer else { return nil }
+            guard let mainImg = renderedFrame else {
+                return nil
+            }
+            guard let buffer = self.bufferWithWaterImage(mainImg: mainImg, water: self.waterImage,clipSize) else {
+                return nil
+            }
             return buffer
         }
         return nil
     }
     
-    func cropImageWithcontentMode(contentMode: ARFrameMode, renderedFrame: UIImage?) -> UIImage? {
+    func bufferWithWaterImage(mainImg: UIImage, water: UIImage?,_ clipSize: CGSize) -> CVPixelBuffer? {
         
-        switch contentMode {
-        case .aspectRatio16To9:
-            guard let image =  renderedFrame else {
+        
+        
+        let attrs = [kCVPixelBufferCGImageCompatibilityKey: kCFBooleanTrue, kCVPixelBufferCGBitmapContextCompatibilityKey: kCFBooleanTrue] as CFDictionary
+        var pixelBuffer: CVPixelBuffer?
+        let status = CVPixelBufferCreate(kCFAllocatorDefault, Int(clipSize.width), Int(clipSize.height), kCVPixelFormatType_32ARGB, attrs, &pixelBuffer)
+        guard (status == kCVReturnSuccess) else {
+            return nil
+        }
+        
+        CVPixelBufferLockBaseAddress(pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
+        let pixelData = CVPixelBufferGetBaseAddress(pixelBuffer!)
+        
+        let rgbColorSpace = CGColorSpaceCreateDeviceRGB()
+        let context = CGContext(data: pixelData, width: Int(clipSize.width), height: Int(clipSize.height), bitsPerComponent: 8, bytesPerRow: CVPixelBufferGetBytesPerRow(pixelBuffer!), space: rgbColorSpace, bitmapInfo: CGImageAlphaInfo.noneSkipFirst.rawValue)
+        
+        UIGraphicsPushContext(context!)
+        
+        if UIScreen.main.isNotch && self.ARcontentMode == .aspectRatio16To9 { // iphonex
+            
+            var imageRef: CGImage? = nil
+            imageRef = mainImg.cgImage?.cropping(to: CGRect.init(x: 0, y: 0, width: clipSize.width, height: clipSize.height))
+            
+            guard let cgimg = imageRef else {
                 return nil
             }
-            var img: UIImage?
-            if !UIScreen.main.isiPhone10 && self.waterImage == nil { //非isiPhone10 不用裁剪
-                return renderedFrame
-            } else if !UIScreen.main.isiPhone10 && self.waterImage != nil {
-                img = image.cropImage(to: CGRect.init(x: 0, y: 0, width: image.size.width, height: image.size.width * 1.778), waterImg: self.waterImage)
-            } else if UIScreen.main.isiPhone10 && self.waterImage == nil {
-                img = image.cropImage(to: CGRect.init(x: 0, y: 0, width: image.size.width, height: image.size.width * 1.778))
-            } else if UIScreen.main.isiPhone10 && self.waterImage != nil {
-                img = image.cropImage(to: CGRect.init(x: 0, y: 0, width: image.size.width, height: image.size.width * 1.778), waterImg: self.waterImage)
+            
+            context?.draw(cgimg, in: CGRect.init(x: 0, y: 0, width: clipSize.width, height: clipSize.height))
+            if let wat = water {
+                context?.translateBy(x: 0, y: clipSize.height)
+                context?.scaleBy(x: 1.0, y: -1.0)
+                let watHei: CGFloat = wat.size.height / wat.size.width * mainImg.size.width
+                wat.draw(in: CGRect(x: 0, y: clipSize.height - watHei, width: mainImg.size.width, height: watHei))
             }
-            return img
-        default:
-            return renderedFrame
+            
+        } else {
+            context?.translateBy(x: 0, y: clipSize.height)
+            context?.scaleBy(x: 1.0, y: -1.0)
+            mainImg.draw(in: CGRect(x: 0, y: 0, width: clipSize.width, height: clipSize.height))
+            if let wat = water {
+                let watHei: CGFloat = wat.size.height / wat.size.width * clipSize.width
+                wat.draw(in: CGRect(x: 0, y: clipSize.height - watHei, width: clipSize.width, height: watHei))
+            }
         }
+        
+        UIGraphicsPopContext()
+        CVPixelBufferUnlockBaseAddress(pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
+        return pixelBuffer
     }
 }

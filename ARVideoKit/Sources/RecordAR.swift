@@ -23,6 +23,10 @@ import PhotosUI
  */
 @available(iOS 11.0, *)
 @objc public class RecordAR: ARView {
+    
+    @objc public var renderScale: CGFloat = 1.5
+    
+    @objc public var waterImage: UIImage?
     //MARK: - Public objects to configure RecordAR
     /**
      An object that passes the AR recorder errors and status in the protocol methods.
@@ -66,7 +70,7 @@ import PhotosUI
     /**
      An object that allow customizing the AR content mode. Default is `.auto`.
      */
-    @objc public var contentMode: ARFrameMode = .auto
+    @objc public var contentMode: ARFrameMode = .aspectRatio16To9
     /**
      A boolean that enables or disables AR content rendering before recording for image & video processing. Default is `true`.
      */
@@ -125,28 +129,27 @@ import PhotosUI
         }
     }
     
-    @objc public var renderScale: CGFloat = 1.5
-    
-    @objc public var waterImage: UIImage?
-    
     //MARK: - Public initialization methods
     /**
      Initialize 🌞🍳 `RecordAR` with an `ARSCNView` 🚀.
      */
-    @objc override public init?(ARSceneKit: ARSCNView) {
+    @objc public init?(ARSceneKit: ARSCNView ,_ waterImage: UIImage? = nil, _ renderScale: CGFloat = 1.5) {
         super.init(ARSceneKit: ARSceneKit)
         view = ARSceneKit
+        self.waterImage = waterImage
+        self.renderScale = renderScale
         setup()
     }
     
     /**
      Initialize 🌞🍳 `RecordAR` with an `ARSKView` 👾.
      */
-    @objc override public init?(ARSpriteKit: ARSKView) {
+    @objc public init?(ARSpriteKit: ARSKView, _ waterImage: UIImage? = nil, _ renderScale: CGFloat = 1.5) {
         super.init(ARSpriteKit: ARSpriteKit)
         view = ARSpriteKit
         scnView = SCNView(frame: UIScreen.main.bounds)
-        
+        self.waterImage = waterImage
+        self.renderScale = renderScale
         let scene = SCNScene()
         scnView.scene = scene
         setup()
@@ -155,9 +158,11 @@ import PhotosUI
     /**
      Initialize 🌞🍳 `RecordAR` with an `SCNView` 🚀.
      */
-    @objc override public init?(SceneKit: SCNView) {
+    @objc public init?(SceneKit: SCNView, _ waterImage: UIImage? = nil, _ renderScale: CGFloat = 1.5) {
         super.init(SceneKit: SceneKit)
         view = SceneKit
+        self.waterImage = waterImage
+        self.renderScale = renderScale
         setup()
     }
 
@@ -287,7 +292,8 @@ import PhotosUI
         onlyRenderWhileRec = onlyRenderWhileRecording
         
         renderer = RenderAR(view, renderer: renderEngine, contentMode: contentMode)
-
+        renderer.waterImage = waterImage
+        renderer.renderScale = renderScale
         NotificationCenter.default.addObserver(self, selector: #selector(appWillEnterBackground), name: UIApplication.willResignActiveNotification, object: nil)
     }
     
@@ -770,24 +776,11 @@ extension RecordAR {
             logAR.message("ERROR:- An error occurred while rendering the camera's main buffers.")
             return
         }
-        
-        guard var size = renderer.bufferSize else {
+        guard let size = renderer.bufferSize else {
             logAR.message("ERROR:- An error occurred while rendering the camera buffer.")
             return
         }
-
-        switch contentMode {
-        case .aspectRatio16To9:
-            if UIScreen.main.isiPhone10 {
-                size = CGSize.init(width: size.width, height: size.width * 1.778)
-            }
-        default:
-            break
-        }
-        
-        renderer.renderScale = self.renderScale
         renderer.ARcontentMode = contentMode
-        renderer.waterImage = self.waterImage
 
         self.writerQueue.sync {
             
@@ -831,7 +824,7 @@ extension RecordAR {
                 } else {
                     self.currentVideoPath = self.newVideoPath
                     
-                    self.writer = WritAR(output: self.currentVideoPath!, width: Int(size.width), height: Int(size.height), adjustForSharing: self.adjustVideoForSharing, audioEnabled: self.enableAudio, orientaions: self.inputViewOrientations, queue: self.writerQueue, allowMix: self.enableMixWithOthers)
+                    self.writer = WritAR(output: self.currentVideoPath!, width: Int(size.width), height: Int(size.height), adjustForSharing: self.adjustVideoForSharing, audioEnabled: self.enableAudio, orientaions: self.inputViewOrientations, queue: self.writerQueue, allowMix: self.enableMixWithOthers,self.contentMode)
                     self.writer?.videoInputOrientation = self.videoOrientation
                     self.writer?.delegate = self.delegate
                 }

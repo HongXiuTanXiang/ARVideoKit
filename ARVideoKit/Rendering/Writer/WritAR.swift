@@ -17,8 +17,10 @@ class WritAR: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
     private var audioInput: AVAssetWriterInput!
     private var session: AVCaptureSession!
     
+    public var contentMode: ARFrameMode = .aspectRatio16To9
+    
     private var pixelBufferInput: AVAssetWriterInputPixelBufferAdaptor!
-    private var videoOutputSettings: Dictionary<String, AnyObject>!
+    private var videoOutputSettings: Dictionary<String, Any>!
     private var audioSettings: [String: Any]?
 
     let audioBufferQueue = DispatchQueue(label: "com.ahmedbekhit.AudioBufferQueue")
@@ -28,7 +30,7 @@ class WritAR: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
     weak var delegate: RecordARDelegate?
     var videoInputOrientation: ARVideoOrientation = .auto
 
-    init(output: URL, width: Int, height: Int, adjustForSharing: Bool, audioEnabled: Bool, orientaions:[ARInputViewOrientation], queue: DispatchQueue, allowMix: Bool) {
+    init(output: URL, width: Int, height: Int, adjustForSharing: Bool, audioEnabled: Bool, orientaions:[ARInputViewOrientation], queue: DispatchQueue, allowMix: Bool,_ contentMode: ARFrameMode = .aspectRatio16To9) {
         super.init()
         do {
             assetWriter = try AVAssetWriter(outputURL: output, fileType: AVFileType.mp4)
@@ -48,21 +50,56 @@ class WritAR: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
                 }
             })
         }
+        self.contentMode = contentMode
+        
+        var hei: Int = height
+        if self.contentMode == .aspectRatio16To9 {
+            hei = Int(CGFloat(width) * 1.778)
+        }
+        
+//        let verOffset: CGFloat = (CGFloat(height) - hei)
+//        var videoCleanApertureSettings: [String: Any] = [:]
+//        videoCleanApertureSettings = [
+//            AVVideoCleanApertureWidthKey: width,
+//            AVVideoCleanApertureHeightKey: hei,
+//            AVVideoCleanApertureHorizontalOffsetKey: 1000,
+//            AVVideoCleanApertureVerticalOffsetKey: -1000
+//        ]
         
         //HEVC file format only supports A10 Fusion Chip or higher.
         //to support HEVC, make sure to check if the device is iPhone 7 or higher
-        videoOutputSettings = [
-            AVVideoCodecKey: AVVideoCodecType.h264 as AnyObject,
-            AVVideoWidthKey: width as AnyObject,
-            AVVideoHeightKey: height as AnyObject
+        
+//        let videoAspectRatioSettings: [String: Any] = [
+//            AVVideoPixelAspectRatioHorizontalSpacingKey: 16,
+//            AVVideoPixelAspectRatioVerticalSpacingKey: 9
+//        ]
+        
+        let numPixels = width * hei
+        let bitsPerPixel = 8
+        let bitsPerSecond = numPixels * bitsPerPixel
+        
+        let codecSeting: [String: Any] = [
+            AVVideoAverageBitRateKey: bitsPerSecond,
+            AVVideoProfileLevelKey: AVVideoProfileLevelH264BaselineAutoLevel,
+            AVVideoMaxKeyFrameIntervalKey: 10,
+            AVVideoExpectedSourceFrameRateKey: 15,
+//            AVVideoCleanApertureKey:videoCleanApertureSettings,
+//            AVVideoPixelAspectRatioKey:videoAspectRatioSettings
         ]
         
-        let attributes: [String: Bool] = [
-            kCVPixelBufferCGImageCompatibilityKey as String: true,
-            kCVPixelBufferCGBitmapContextCompatibilityKey as String: true
-        ]
+        videoOutputSettings = [
+            AVVideoCodecKey: AVVideoCodecType.h264 ,
+            AVVideoWidthKey: width ,
+            AVVideoHeightKey: hei,
+            AVVideoCompressionPropertiesKey:codecSeting
+            ] as [String: Any]
+        
+//        let attributes: [String: Bool] = [
+//            kCVPixelBufferCGImageCompatibilityKey as String: true,
+//            kCVPixelBufferCGBitmapContextCompatibilityKey as String: true
+//        ]
         videoInput = AVAssetWriterInput(mediaType: .video, outputSettings: videoOutputSettings)
-
+        
         videoInput.expectsMediaDataInRealTime = true
         pixelBufferInput = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoInput, sourcePixelBufferAttributes: nil)
         
