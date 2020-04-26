@@ -8,6 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		149DF3A124323DC1006F5A50 /* SenceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 149DF3A024323DC1006F5A50 /* SenceViewController.swift */; };
+		14D737BB2455986C00F0121E /* ReplayKitDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D737BA2455986C00F0121E /* ReplayKitDemoViewController.swift */; };
+		14D737C124559FCC00F0121E /* RenderVideoOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D737BC24559FCB00F0121E /* RenderVideoOptions.swift */; };
+		14D737C224559FCC00F0121E /* RecorderWritr.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D737BD24559FCB00F0121E /* RecorderWritr.swift */; };
+		14D737C324559FCC00F0121E /* StopVideoRecordingWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D737BE24559FCB00F0121E /* StopVideoRecordingWindow.swift */; };
+		14D737C424559FCC00F0121E /* SwiftTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D737BF24559FCC00F0121E /* SwiftTimer.swift */; };
+		14D737C524559FCC00F0121E /* ScreenRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D737C024559FCC00F0121E /* ScreenRecorder.swift */; };
+		14D737C724559FE900F0121E /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D737C624559FE900F0121E /* PlayerViewController.swift */; };
 		FB2E368C1FAE2A510035B8D6 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = FB2E368B1FAE2A510035B8D6 /* LICENSE */; };
 		FB36BDB020086BBB00002808 /* ARVideoKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB36BDAF20086BB000002808 /* ARVideoKit.framework */; };
 		FB36BDB120086BBB00002808 /* ARVideoKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FB36BDAF20086BB000002808 /* ARVideoKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -56,6 +63,13 @@
 
 /* Begin PBXFileReference section */
 		149DF3A024323DC1006F5A50 /* SenceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SenceViewController.swift; sourceTree = "<group>"; };
+		14D737BA2455986C00F0121E /* ReplayKitDemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplayKitDemoViewController.swift; sourceTree = "<group>"; };
+		14D737BC24559FCB00F0121E /* RenderVideoOptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RenderVideoOptions.swift; sourceTree = "<group>"; };
+		14D737BD24559FCB00F0121E /* RecorderWritr.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecorderWritr.swift; sourceTree = "<group>"; };
+		14D737BE24559FCB00F0121E /* StopVideoRecordingWindow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StopVideoRecordingWindow.swift; sourceTree = "<group>"; };
+		14D737BF24559FCC00F0121E /* SwiftTimer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftTimer.swift; sourceTree = "<group>"; };
+		14D737C024559FCC00F0121E /* ScreenRecorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScreenRecorder.swift; sourceTree = "<group>"; };
+		14D737C624559FE900F0121E /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
 		FB2E368B1FAE2A510035B8D6 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		FB36BDAA20086BB000002808 /* ARVideoKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ARVideoKit.xcodeproj; path = ../../ARVideoKit.xcodeproj; sourceTree = "<group>"; };
 		FB9B5D2D1FC49E3E005DDD60 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
@@ -117,6 +131,13 @@
 				FBE134BB1FAAD3DD00BEC469 /* SCNViewController.swift */,
 				FBDCC60C1FABFE6A00E3184D /* SKViewController.swift */,
 				149DF3A024323DC1006F5A50 /* SenceViewController.swift */,
+				14D737BA2455986C00F0121E /* ReplayKitDemoViewController.swift */,
+				14D737BD24559FCB00F0121E /* RecorderWritr.swift */,
+				14D737BC24559FCB00F0121E /* RenderVideoOptions.swift */,
+				14D737C024559FCC00F0121E /* ScreenRecorder.swift */,
+				14D737BE24559FCB00F0121E /* StopVideoRecordingWindow.swift */,
+				14D737BF24559FCC00F0121E /* SwiftTimer.swift */,
+				14D737C624559FE900F0121E /* PlayerViewController.swift */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -274,8 +295,15 @@
 				FBE134BA1FAAD3DD00BEC469 /* AppDelegate.swift in Sources */,
 				FBDCC60D1FABFE6A00E3184D /* SKViewController.swift in Sources */,
 				FBDCC5E81FABDFC600E3184D /* Scene.swift in Sources */,
+				14D737BB2455986C00F0121E /* ReplayKitDemoViewController.swift in Sources */,
+				14D737C524559FCC00F0121E /* ScreenRecorder.swift in Sources */,
+				14D737C324559FCC00F0121E /* StopVideoRecordingWindow.swift in Sources */,
+				14D737C724559FE900F0121E /* PlayerViewController.swift in Sources */,
+				14D737C424559FCC00F0121E /* SwiftTimer.swift in Sources */,
 				FB9B5D2E1FC49E3E005DDD60 /* MainViewController.swift in Sources */,
+				14D737C124559FCC00F0121E /* RenderVideoOptions.swift in Sources */,
 				149DF3A124323DC1006F5A50 /* SenceViewController.swift in Sources */,
+				14D737C224559FCC00F0121E /* RecorderWritr.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

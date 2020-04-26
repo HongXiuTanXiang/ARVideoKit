@@ -44,8 +44,6 @@ class SCNViewController: UIViewController, ARSCNViewDelegate, RenderARDelegate, 
 
 
         recorder = RecordAR(ARSceneKit: sceneView)
-        recorder?.renderScale = 1.5
-        recorder?.waterImage = UIImage(named: "icon_ar_waterflag_01")
         
         /*----👇---- ARVideoKit Configuration ----👇----*/
         
@@ -56,12 +54,10 @@ class SCNViewController: UIViewController, ARSCNViewDelegate, RenderARDelegate, 
         recorder?.renderAR = self
         
         // Configure the renderer to perform additional image & video processing 👁
-        recorder?.onlyRenderWhileRecording = true
+        recorder?.onlyRenderWhileRecording = false
         
         // Configure ARKit content mode. Default is .auto
-        recorder?.contentMode = .aspectRatio16To9
-        
-        recorder?.fps = .auto
+        recorder?.contentMode = .aspectFill
         
         //record or photo add environment light rendering, Default is false
         recorder?.enableAdjustEnvironmentLighting = true
@@ -275,7 +271,7 @@ extension SCNViewController {
     
     func recorder(didEndRecording path: URL, with noError: Bool) {
         if noError {
-            
+            // Do something with the video path.
         }
     }
     

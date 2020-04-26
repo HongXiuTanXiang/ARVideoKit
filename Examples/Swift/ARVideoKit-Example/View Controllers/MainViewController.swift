@@ -20,6 +20,15 @@ class MainViewController: UIViewController {
         btn.backgroundColor = UIColor.white
         return btn
     }()
+    
+    lazy var replaykitButton: UIButton = {
+        let btn = UIButton()
+        btn.setTitle("ReplayKitDemoViewController", for: UIControl.State.normal)
+        btn.addTarget(self, action: #selector(replaykitButtonClick), for: UIControl.Event.touchUpInside)
+        btn.setTitleColor(UIColor.black, for: UIControl.State.normal)
+        btn.backgroundColor = UIColor.white
+        return btn
+    }()
 
     
     override func viewDidLoad() {
@@ -28,7 +37,14 @@ class MainViewController: UIViewController {
         scnBtn.layer.cornerRadius = scnBtn.bounds.height/2
         
         self.view.addSubview(senceButton)
+        
         senceButton.frame = CGRect.init(x: 20, y: 450, width: 380, height: 60)
+        senceButton.layer.cornerRadius = senceButton.bounds.height / 2
+        
+        self.view.addSubview(self.replaykitButton)
+        replaykitButton.frame = CGRect.init(x: 20, y: 550, width: 380, height: 60)
+        replaykitButton.layer.cornerRadius = replaykitButton.bounds.height / 2
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -40,6 +56,17 @@ class MainViewController: UIViewController {
         let senceVc = SenceViewController()
         self.present(senceVc, animated: true, completion: nil)
     }
+    
+    @objc dynamic func replaykitButtonClick() {
+        if #available(iOS 12.0, *) {
+            let senceVc = ReplayKitDemoViewController()
+            self.present(senceVc, animated: true, completion: nil)
+        } else {
+            // Fallback on earlier versions
+        }
+        
+    }
+
 
 
 }
